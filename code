@@ -1,0 +1,637 @@
+import tkinter
+import tkinter.messagebox
+import pickle
+from tkinter import *
+from tkinter.font import Font
+import tkinter.messagebox
+from tkinter import ttk
+import re
+from PIL import Image, ImageTk
+from tkinter import filedialog
+
+# Criação da janela
+root = Tk()
+root.title("Lista")
+root.geometry('700x500')
+root.minsize(width=700, height=500)
+
+
+# Definir as fontes
+
+texto_fonte = Font(
+    family='Century Gothic',
+    size=27,
+    weight='bold',
+    overstrike=0
+)
+
+texto_fonte2 = Font(
+    family='Century Gothic',
+    size=27,
+    weight='bold',
+    overstrike=1
+)
+
+
+# texto de marcação
+label = Label(root, text='Entrada:', font=('Calibri', 12), fg='black', bg='SystemButtonFace')
+label.pack(anchor=W, padx=165)
+
+# Adicionar novos objetos
+Entrada = Entry(root, font=('Consolas', 24), bg='white', fg='black')
+Entrada.pack(pady=10)
+
+# Entrada lista riscada
+#Entrada2 = Entry(root, font=('Consolas', 24))
+#Entrada2.pack(pady=20)
+
+#Criando local para os botões
+botao_frame = Frame(root)
+botao_frame.pack(pady=20)
+
+#Criando o frame da lista
+frames = Frame(root)
+frames.pack(pady=10)
+
+#Criando o frame2 - modo claro e escuro
+frames2 = Frame(root)
+frames2.pack(pady=10)
+
+
+
+#Criando a tela da lista
+lista = Listbox(frames,
+                font=texto_fonte,
+                width=30,
+                height=3,
+                #bg='SystemButtonFace',
+                bg='#DDECEA',
+                bd=0,
+                fg='#464646',
+                highlightthickness=0,
+                selectbackground='#a6a6a6',
+                activestyle='none',
+)
+
+lista.grid(row=0, column=1)
+
+#Criando a tela da lista2 - lista riscada
+lista2 = Listbox(frames,
+        font=texto_fonte2,
+        width=30,
+        height=3,
+        #bg='SystemButtonFace',
+        bg='#F7E6CF',
+        bd=0,
+        fg='#B22222',
+        highlightthickness=0,
+        selectbackground='#b6a6c6',
+        activestyle='none'
+)
+
+lista2.grid(row=1, column=1)
+
+#Funções
+
+# Função para deletar itens das listas
+
+def deletar_item():
+
+    if lista.curselection():
+        #print('ok')
+        selecionado = lista.curselection() or lista2.curselection()
+
+        if lista.curselection():
+            selecionado = lista.curselection()
+        else:
+            selecionado = lista2.curselection()
+
+        alda = str(selecionado)
+        num_alda = re.sub('[^0-9]', '', alda)
+
+        nums = int(num_alda)
+        lista.delete(nums)
+    elif lista2.curselection():
+        selecionado = lista.curselection() or lista2.curselection()
+
+        if lista.curselection():
+            selecionado = lista.curselection()
+        else:
+            selecionado = lista2.curselection()
+
+        alda = str(selecionado)
+        num_alda = re.sub('[^0-9]', '', alda)
+
+        nums = int(num_alda)
+        lista2.delete(nums)
+    elif not lista.curselection() and not lista2.curselection():
+        tkinter.messagebox.showwarning(title="Erro!", message="Você não selecionou nenhuma tarefa!")
+    else:
+        pass
+
+
+# Função para adicionar itens na lista 1
+
+def adicionar_item():
+    tarefa = Entrada.get()
+    #tarefa2 = Entrada2.get()
+    if tarefa != '':
+        lista.insert(tkinter.END, tarefa)
+        Entrada.delete(0, tkinter.END)
+    else:
+        # SE adicionar a entrada na lista riscada (lista2) {
+
+        #if tarefa2 != '':
+            #lista2.insert(tkinter.END, tarefa2)
+            #Entrada2.delete(0, tkinter.END)
+        #else:
+
+        #}
+            tkinter.messagebox.showwarning(title="Erro!", message="Você não nomeou a tarefa!")
+
+
+# Função para renomear itens das listas
+
+def renomear_items():
+    selecionado = lista.curselection()
+
+    #print(str(selecionado))
+    alda = str(selecionado)
+    num_alda = re.sub('[^0-9]', '', alda)
+
+    # testes
+        #print([float(s) for s in re.findall(r'-?\d+\.?\d*', alda)])
+        #numb = (float(s) for s in re.findall(r'-?\d+\.?\d*', alda))
+        #number = float(numb)
+
+        #print(number)
+
+        #print(belda)
+
+        # #lista.itemconfig(
+        #    selecionado,
+        #    fg='#B22222',
+        #)
+        #nomes = lista.get(selecionado)
+        #lista.itemconfig(selecionado, nomes=Entrada.get())
+
+    if lista.curselection() or lista2.curselection():
+        if Entrada.get() != '':
+            lista.insert(num_alda, Entrada.get())
+            lista.delete(int(num_alda) + 1)
+            Entrada.delete(0, tkinter.END)
+        else:
+            tkinter.messagebox.showwarning(title="Erro!", message="Você não digitou o novo nome da tarefa!")
+    else:
+        tkinter.messagebox.showwarning(title="Erro!", message="Você não selecionou nenhuma tarefa!")
+
+    lista.selection_clear(0, END)
+
+
+
+# Função para passar itens da lista 1 para a lista 2
+
+def riscar():
+
+
+    if lista.curselection():
+        selecionado = lista.curselection()
+        selecionado2 = lista2.curselection()
+        nome = lista.get(selecionado)
+
+        # Testes
+            #print(str(selecionado))
+            #print(nome)
+            # print(alfa)
+        lista2.insert(tkinter.END, nome)
+
+        lista.delete(ANCHOR)
+    else:
+        tkinter.messagebox.showwarning(title="Erro!", message="Você não selecionou nenhuma tarefa!")
+
+
+
+# Função para passar itens da lista 2 para a lista 1
+
+def retornar_items():
+
+    if lista2.curselection():
+
+        selecionado2 = lista2.curselection()
+        nome2 = lista2.get(selecionado2)
+
+        lista.insert(tkinter.END, nome2)
+
+        lista2.delete(ANCHOR)
+
+        lista.selection_clear(0, END)
+    else:
+        tkinter.messagebox.showwarning(title="Erro!", message="Você não selecionou nenhuma tarefa!")
+
+
+
+# FUNÇÕES do menu
+
+# Função para salvar a lista 1
+
+def salvar_lista():
+    nome_lista = filedialog.asksaveasfilename(
+        initialdir='C;/Users/Mdiniz/PycharmProjects/MeusProjetos',
+        title='Salvar lista',
+        filetypes=(('Dat files', '*.dat'), ('All files', '*.*')),
+    )
+
+    if nome_lista:
+        if nome_lista.endswith('.dat'):
+            pass
+        else:
+            nome_lista = f'{nome_lista}.dat'
+
+        # pegar todos os itens da lista
+        stuff = lista.get(0, END)
+
+        #Abrir o arquivo
+        saindo_item = open(nome_lista, 'wb')
+
+        #adicionar os itens da lista do prog. no texto salvo
+        pickle.dump(stuff, saindo_item)
+
+
+
+# Função para salvar a lista 2
+
+def salvar_lista2():
+    nome_lista2 = filedialog.asksaveasfilename(
+        initialdir='C;/Users/Mdiniz/PycharmProjects/MeusProjetos',
+        title='Salvar lista',
+        filetypes=(('Dat files', '*.dat'), ('All files', '*.*')),
+    )
+
+    if nome_lista2:
+        if nome_lista2.endswith('.dat'):
+            pass
+        else:
+            nome_lista2 = f'{nome_lista2}.dat'
+
+        # pegar todos os itens da lista
+        stuff = lista2.get(0, END)
+
+        #Abrir o arquivo
+        saindo_item = open(nome_lista2, 'wb')
+
+        #adicionar os itens da lista do prog. no texto salvo
+        pickle.dump(stuff, saindo_item)
+
+
+
+# Função para salvar as 2 listas
+
+def salvar_listas():
+    nome_lista = filedialog.asksaveasfilename(
+        initialdir='C;/Users/Mdiniz/PycharmProjects/MeusProjetos',
+        title='Salvar lista 1',
+        filetypes=(('Dat files', '*.dat'), ('All files', '*.*')),
+    )
+
+    nome_lista2 = filedialog.asksaveasfilename(
+        initialdir='C;/Users/Mdiniz/PycharmProjects/MeusProjetos',
+        title='Salvar lista 2',
+        filetypes=(('Dat files', '*.dat'), ('All files', '*.*')),
+    )
+
+    if nome_lista:
+        if nome_lista.endswith('.dat'):
+            pass
+        else:
+            nome_lista = f'{nome_lista}.dat'
+
+    if nome_lista2:
+        if nome_lista2.endswith('.dat'):
+            pass
+        else:
+            nome_lista2 = f'{nome_lista2}.dat'
+
+        # pegar todos os itens da lista
+        stuff = lista.get(0, END)
+        stiff = lista2.get(0, END)
+
+        #Abrir o arquivo
+        saindo_item = open(nome_lista, 'wb')
+        saindo_item2 = open(nome_lista2, 'wb')
+
+        #adicionar os itens da lista do prog. no texto salvo
+        pickle.dump(stuff, saindo_item)
+        pickle.dump(stiff, saindo_item2)
+
+
+# Função para abrir a lista 1
+
+def abrir_lista():
+    nome_lista = filedialog.askopenfilename(
+        initialdir='C;/Users/Mdiniz/PycharmProjects/MeusProjetos',
+        title='Abrir lista',
+        filetypes=(('Dat files', '*.dat'), ('All files', '*.*')),
+    )
+
+    if nome_lista:
+        # limpar lista antes de abrir outra
+        lista.delete(0, END)
+
+        # abrir lista
+        requisitando_lista = open(nome_lista, 'rb')
+
+        # carregar arquivos textos
+        steff = pickle.load(requisitando_lista)
+
+        # mostrar os textos na lista
+        for item in steff:
+            lista.insert(END, item)
+
+
+# Função para abrir a lista 2
+
+def abrir_lista2():
+    nome_lista2 = filedialog.askopenfilename(
+        initialdir='C;/Users/Mdiniz/PycharmProjects/MeusProjetos',
+        title='Abrir lista',
+        filetypes=(('Dat files', '*.dat'), ('All files', '*.*')),
+    )
+
+    if nome_lista2:
+        # limpar lista antes de abrir outra
+        lista2.delete(0, END)
+
+        # abrir lista
+        requisitando_lista2 = open(nome_lista2, 'rb')
+
+        # carregar arquivos textos
+        steff = pickle.load(requisitando_lista2)
+
+        # mostrar os textos na lista
+        for item in steff:
+            lista2.insert(END, item)
+
+
+# Função para abrir as listas
+
+def abrir_listas():
+    nome_lista = filedialog.askopenfilename(
+        initialdir='C;/Users/Mdiniz/PycharmProjects/MeusProjetos',
+        title='Abrir lista 1',
+        filetypes=(('Dat files', '*.dat'), ('All files', '*.*')),
+    )
+
+    nome_lista2 = filedialog.askopenfilename(
+        initialdir='C;/Users/Mdiniz/PycharmProjects/MeusProjetos',
+        title='Abrir lista 2',
+        filetypes=(('Dat files', '*.dat'), ('All files', '*.*')),
+    )
+
+    if nome_lista:
+        # limpar lista antes de abrir outra
+        lista.delete(0, END)
+        lista2.delete(0, END)
+
+        # abrir lista
+        requisitando_lista = open(nome_lista, 'rb')
+        requisitando_lista2 = open(nome_lista2, 'rb')
+
+        # carregar arquivos textos
+        steff = pickle.load(requisitando_lista)
+        stuff = pickle.load(requisitando_lista2)
+
+        # mostrar os textos na lista
+        for item in steff:
+            lista.insert(END, item)
+        for item in stuff:
+            lista2.insert(END, item)
+
+
+# Função para limpar a lista 1
+
+def limpar_lista():
+    if tkinter.messagebox.askokcancel(message='Tem certeza que deseja apagar a lista 1?', title='Confirmação', icon='question', detail='Essa ação não pode ser desfeita!'):
+        lista.delete(0, END)
+    else:
+        pass
+
+
+# Função para limpar a lista 2
+
+def limpar_lista2():
+    if tkinter.messagebox.askokcancel(message='Tem certeza que deseja apagar a lista 2?', title='Confirmação', icon='question', detail='Essa ação não pode ser desfeita!'):
+        lista2.delete(0, END)
+    else:
+        pass
+
+
+
+# Função para limpar as listas
+
+def limpar_listas():
+    if tkinter.messagebox.askokcancel(message='Tem certeza que deseja apagar as listas 1 e 2?', title='Confirmação', icon='question', detail='Essa ação não pode ser desfeita!'):
+        lista.delete(0, END)
+        lista2.delete(0, END)
+    else:
+        pass
+
+
+
+
+# FUNÇÕES de modo claro e escuro
+
+# MODO ESCURo
+
+def dark():
+    lista.config(
+        fg='#e0f8f3',
+        bg='#207469'
+    )
+    lista2.config(
+        fg='#f8e4e0',
+        bg='#76160c'
+    )
+    root.config(bg="black")
+    label.config(bg='black', fg='white')
+    Entrada.config(bg='gray', fg='white')
+    barra_scroll.config(bg='black')
+    barra_scroll2.config(bg='black')
+    botao_adicionar.config(bg='black', fg='white')
+    botao_delete.config(bg='black', fg='white')
+    botao_renomear.config(bg='black', fg='white')
+    botao_riscar.config(bg='black', fg='white')
+    botao_retornar.config(bg='black', fg='white')
+    botao_delete.grid(padx=0)
+    botao_riscar.grid(padx=0)
+    botao_modo_escuro.config(bg='black', fg='white')
+    botao_modo_claro.config(bg='black', fg='white')
+
+
+# MODO CLARO
+
+def light():
+    lista.config(
+        bg='#DDECEA',
+        fg='#464646'
+    )
+    lista2.config(
+        bg='#F7E6CF',
+        fg='#B22222',
+    )
+    root.config(bg="SystemButtonFace")
+    label.config(bg='SystemButtonFace', fg='black')
+    Entrada.config(bg='white', fg='black')
+    barra_scroll.config(bg='SystemButtonFace')
+    barra_scroll2.config(bg='SystemButtonFace')
+    botao_adicionar.config(bg='SystemButtonFace', fg='black')
+    botao_delete.config(bg='SystemButtonFace', fg='black')
+    botao_renomear.config(bg='SystemButtonFace', fg='black')
+    botao_riscar.config(bg='SystemButtonFace', fg='black')
+    botao_retornar.config(bg='SystemButtonFace', fg='black')
+    botao_delete.grid(padx=7)
+    botao_riscar.grid(padx=7)
+    botao_modo_escuro.config(bg='SystemButtonFace', fg='black')
+    botao_modo_claro.config(bg='SystemButtonFace', fg='black')
+
+
+# TESTE DE CUSTOMIZAÇÂO - (ainda não finalizada)
+
+def janela():
+    nova_janela= Toplevel(root)
+    nova_janela.geometry("250x250")
+    nova_janela.title("Janela alteração")
+
+
+    texto_teste= Label(nova_janela, text= "teste janela", font=('Helvetica 15'))
+    texto_teste.pack()
+
+    def mais():
+        #num = 27
+        taf = Entrada2.get()
+        cor = str(taf)
+
+        if cor:
+            lista.config(bg=cor)
+
+        else:
+            pass
+
+
+
+    def nop():
+        tkinter.messagebox.showwarning(message='essa função ainda não está disponível!', title='|ALERTA|')
+        nova_janela.destroy()
+
+    Entrada2 = Entry(nova_janela, font=('Consolas', 24), bg='white', fg='black')
+    Entrada2.pack(pady=10)
+
+    aumentar = Button(nova_janela, text='Alterar', command=nop)
+    aumentar.pack(pady=20)
+
+
+#Craindo Scroll
+barra_scroll = Scrollbar(frames, bg='SystemButtonFace')
+barra_scroll.grid(row=0, column=0, ipady=40, sticky='w')
+
+barra_scroll2 = Scrollbar(frames, bg='SystemButtonFace')
+barra_scroll2.grid(row=1, column=0, ipady=40, sticky='w')
+
+# Adicionando Scroll
+lista.config(yscrollcommand=barra_scroll.set)
+barra_scroll.config(command=lista.yview)
+
+lista2.config(yscrollcommand=barra_scroll2.set)
+barra_scroll2.config(command=lista2.yview)
+
+
+#Base Botões
+botao_delete = Button(botao_frame, text='Deletar Tarefa', command=deletar_item)
+botao_adicionar = Button(botao_frame, text='Adicionar Tarefa', command=adicionar_item)
+botao_renomear = Button(botao_frame, text='Renomear Tarefa', command=renomear_items)
+botao_retornar = Button(botao_frame, text='↑ Retornar Tarefa', command=retornar_items)
+botao_riscar = Button(botao_frame, text='↓ Riscar Tarefa', command=riscar)
+
+botao_modo_escuro = Button(frames2, text='🌙 Dark', command=dark, #activebackground='red'
+                            )
+botao_modo_claro = Button(frames2, text='🔆 Light', command=light, #activebackground='red'
+                          )
+
+#Botões grid
+botao_adicionar.grid(row=1, column=2)
+botao_delete.grid(row=1, column=3, padx=7)
+botao_renomear.grid(row=1, column=4)
+botao_riscar.grid(row=1, column=5, padx=7)
+botao_retornar.grid(row=1, column=6)
+
+botao_modo_escuro.grid(row=5, column=2)
+botao_modo_claro.grid(row=5, column=1)
+
+
+# Criando o menu
+app_menu = Menu(root)
+root.config(menu=app_menu)
+
+# adicionando itens ao menu
+itens_menu = Menu(app_menu, tearoff=False)
+mudar_menu = Menu(app_menu, tearoff=False)
+ajuda_menu = Menu(app_menu, tearoff=False)
+app_menu.add_cascade(label='Opções', menu=itens_menu)
+app_menu.add_cascade(label='Customização', menu=mudar_menu)
+app_menu.add_cascade(label='Help', menu=ajuda_menu)
+
+# Adicionando sub-menus
+sub_salvar = Menu(itens_menu, tearoff=0, bg='#c0fcc1')
+sub_abrir = Menu(itens_menu, tearoff=0, bg='#fceac0')
+sub_limpar = Menu(itens_menu, tearoff=0, bg='#c0f9fc')
+
+sub_cor = Menu(mudar_menu, tearoff=0, bg='#fceac0')
+
+# Adicionando o menus bases
+itens_menu.add_cascade(label='Salvar listas', menu=sub_salvar)
+itens_menu.add_cascade(label='Abrir listas', menu=sub_abrir)
+itens_menu.add_separator()
+itens_menu.add_cascade(label='limpar listas', menu=sub_limpar)
+
+mudar_menu.add_cascade(label='Mudar cor', menu=sub_cor)
+
+# Menu ajuda
+ajuda_menu.add_radiobutton(label="Botões ", value="Botões ")
+ajuda_menu.add_separator()
+
+
+# sub-menus
+add_sub_menu = Menu(ajuda_menu, tearoff=0, bg='#c0fcc1')
+del_sub_menu = Menu(ajuda_menu, tearoff=0, bg='#fceac0')
+renomear_sub_menu = Menu(ajuda_menu, tearoff=0, bg='#c0f9fc')
+riscar_sub_menu = Menu(ajuda_menu, tearoff=0, bg='#c0fcc1')
+retornar_sub_menu = Menu(ajuda_menu, tearoff=0, bg='#fceac0')
+
+ajuda_menu.add_cascade(label='Adicionar', menu=add_sub_menu)
+ajuda_menu.add_cascade(label='Deletar', menu=del_sub_menu)
+ajuda_menu.add_cascade(label='Renomear', menu=renomear_sub_menu)
+ajuda_menu.add_cascade(label='Riscar', menu=riscar_sub_menu)
+ajuda_menu.add_cascade(label='Retornar', menu=retornar_sub_menu)
+
+add_sub_menu.add_radiobutton(label="Adicionar Tarefa - Adiciona tudo dentro da caixa de entrada na lista 1!", value="Adicionar")
+del_sub_menu.add_radiobutton(label="Deletar Tarefa - Deleta a tarefa selecionada de qualquer uma das listas!", value="Deletar")
+renomear_sub_menu.add_radiobutton(label="Renomear Tarefa - Renomeia a tarefa selecionada pelo nome dentro da caixa de entrada!", value="Renomear")
+riscar_sub_menu.add_radiobutton(label="Riscar Tarefa - Joga a tarefa selecionada da lista 1 na lista 2!", value="Riscar")
+retornar_sub_menu.add_radiobutton(label="Retornar Tarefa - Joga a tarefa selecionada da lista 2 na lista 1!", value="Retornar")
+
+
+# Adicionando os comandos dos sub menus
+sub_salvar.add_command(label='Salvar lista 1', command=salvar_lista)
+sub_salvar.add_command(label='Salvar lista 2',  command=salvar_lista2)
+sub_salvar.add_command(label='Salvar todas as listas',  command=salvar_listas)
+sub_abrir.add_command(label='Abrir lista 1', command=abrir_lista)
+sub_abrir.add_command(label='Abrir lista 2', command=abrir_lista2)
+sub_abrir.add_command(label='Abrir todas as listas', command=abrir_listas)
+sub_limpar.add_command(label='limpar lista 1', command=limpar_lista)
+sub_limpar.add_command(label='limpar lista 2', command=limpar_lista2)
+sub_limpar.add_command(label='limpar todas as lista', command=limpar_listas)
+
+sub_cor.add_command(label='lista 1', command=janela)
+sub_cor.add_command(label='lista 2', command=janela)
+
+root.mainloop()
+
